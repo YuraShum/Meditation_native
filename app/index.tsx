@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground} from "react-native";
+import { View, Text, ImageBackground } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import beachImage from "@/assets/meditation-images/beach.webp";
 import "../global.css";
@@ -23,21 +23,20 @@ const App = (props: Props) => {
         resizeMode="cover"
         className="flex-1"
       >
-        <AppGradient
-        colors={["rgba(0,0,0, 0.4)", "rgba(0,0,0, 0.8)"]}>
-        <View>
-              <Text className="text-center text-white font-bold text-4xl">
-                Simple Meditation
-              </Text>
-              <Text className="text-center text-white text-2xl mt-3 text-regular">
-                Simplifying Meditation for Everyone
-              </Text>
-            </View>
+        <AppGradient colors={["rgba(0,0,0, 0.4)", "rgba(0,0,0, 0.8)"]}>
+          <View>
+            <Text className="text-center text-white font-bold text-4xl">
+              Simple Meditation
+            </Text>
+            <Text className="text-center text-white text-2xl mt-3 text-regular">
+              Simplifying Meditation for Everyone
+            </Text>
+          </View>
 
-            <View>
-              <CustomButton onPress={handleClickOnButton} title="Get Started" />
-            </View>
-            <StatusBar style="light" />
+          <View>
+            <CustomButton onPress={handleClickOnButton} title="Get Started" />
+          </View>
+          <StatusBar style="light" />
         </AppGradient>
       </ImageBackground>
     </View>
