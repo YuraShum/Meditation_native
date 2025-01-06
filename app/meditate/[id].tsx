@@ -1,5 +1,5 @@
 import { View, Text, ImageBackground, Pressable } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import MEDITATION_IMAGES from "@/constants/meditation-images";
 import AppGradient from "@/components/AppGradient";
 import { router, useLocalSearchParams } from "expo-router";
@@ -9,46 +9,51 @@ import {Audio} from 'expo-av'
 import CustomButton from "@/components/CustomButton";
 import { formattedTimeMinutes, formattedTimeSeconds } from "@/utils";
 import { MEDITATION_DATA, AUDIO_FILES } from "@/constants/meditation-data";
+import { TimerContext } from "@/context";
 
 
 type Props = {};
 
 const Meditate = (props: Props) => {
+  const {duration, setDuration} = useContext(TimerContext)
+
   const { id } = useLocalSearchParams();
-  const [secondsRemaining, setSecondsRemaining] = useState(10);
   const [isMeditating, setIsMeditating] = useState(false);
   const [audioSound, setAudioSound] = useState<Audio.Sound>()
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
 
+
+
   useEffect(() => {
     let timerId: NodeJS.Timeout;
 
-    if (secondsRemaining === 0) {
+    if (duration === 0) {
       setIsMeditating(false);
       return;
     }
 
     if (isMeditating) {
       timerId = setTimeout(() => {
-        setSecondsRemaining((prevValue) => prevValue - 1);
+        setDuration((prevValue) => prevValue - 1);
       }, 1000);
     }
 
     return () => {
       clearTimeout(timerId);
     };
-  }, [secondsRemaining, isMeditating]);
+  }, [duration, isMeditating]);
 
 
   useEffect(() => {
     return () => {
+      setDuration(10)
       audioSound?.unloadAsync()
     }
   }, [audioSound])
 
   const handleToggleMeditationSessiosStatus = async () => {
-    if(secondsRemaining === 0 ) {
-      setSecondsRemaining(10);
+    if(duration === 0 ) {
+      setDuration(10);
     }
     setIsMeditating(prevValue => !prevValue);
 
@@ -85,6 +90,12 @@ const Meditate = (props: Props) => {
     router.back();
   };
 
+  const handleAdjustDuration = () => {
+    if(isMeditating) handleToggleMeditationSessiosStatus();
+
+    router.push('/(modal)/adjust-meditation-duration');
+  }
+
   return (
     <View className="flex-1">
       <ImageBackground
@@ -116,16 +127,21 @@ const Meditate = (props: Props) => {
                 className="mx-auto bg-white rounded-full w-44 h-44 justify-center items-center border-4 border-gray-400">
                   <Text 
                     className="text-4xl text-gray-600 font-rmono">
-                      {formattedTimeMinutes(secondsRemaining)}:
-                      {formattedTimeSeconds(secondsRemaining)}
+                      {formattedTimeMinutes(duration)}:
+                      {formattedTimeSeconds(duration)}
                   </Text>
               </View>
           </View>
 
           <View className="mb-5">
             <CustomButton
-              title="Start Meditation"
+              title="Adjust duration"
+              onPress={handleAdjustDuration}
+            />
+            <CustomButton
+              title={isMeditating ? 'Stop Meditation': 'Start Meditation'}
               onPress={handleToggleMeditationSessiosStatus}
+              containerStyles="mt-4"
             />
           </View>
         </AppGradient>
