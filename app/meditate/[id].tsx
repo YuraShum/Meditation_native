@@ -4,8 +4,12 @@ import MEDITATION_IMAGES from "@/constants/meditation-images";
 import AppGradient from "@/components/AppGradient";
 import { router, useLocalSearchParams } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
+
+import {Audio} from 'expo-av'
 import CustomButton from "@/components/CustomButton";
 import { formattedTimeMinutes, formattedTimeSeconds } from "@/utils";
+import { MEDITATION_DATA, AUDIO_FILES } from "@/constants/meditation-data";
+
 
 type Props = {};
 
@@ -13,6 +17,8 @@ const Meditate = (props: Props) => {
   const { id } = useLocalSearchParams();
   const [secondsRemaining, setSecondsRemaining] = useState(10);
   const [isMeditating, setIsMeditating] = useState(false);
+  const [audioSound, setAudioSound] = useState<Audio.Sound>()
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
 
   useEffect(() => {
     let timerId: NodeJS.Timeout;
@@ -33,13 +39,52 @@ const Meditate = (props: Props) => {
     };
   }, [secondsRemaining, isMeditating]);
 
+
+  useEffect(() => {
+    return () => {
+      audioSound?.unloadAsync()
+    }
+  }, [audioSound])
+
+  const handleToggleMeditationSessiosStatus = async () => {
+    if(secondsRemaining === 0 ) {
+      setSecondsRemaining(10);
+    }
+    setIsMeditating(prevValue => !prevValue);
+
+    await handleTogglePlay()
+  }
+
+  const initializeSound = async () => {
+    const audioFileName = MEDITATION_DATA[Number(id) - 1].audio;
+
+    const {sound} = await Audio.Sound.createAsync(
+      AUDIO_FILES[audioFileName]
+    );
+
+    setAudioSound(sound);
+    return sound;
+  }
+
+  const handleTogglePlay = async () => {
+    const sound = audioSound ? audioSound : await initializeSound();
+
+    const status = await sound.getStatusAsync();
+
+    if(status.isLoaded && !isPlayingAudio){
+      await sound.playAsync();
+      setIsPlayingAudio(true);
+    } else {
+      await sound.pauseAsync();
+      setIsPlayingAudio(false);
+    }
+
+  }
+
   const handleGoToBack = () => {
     router.back();
   };
 
-  const handleStartMeditation = () => {
-    setIsMeditating(true);
-  };
   return (
     <View className="flex-1">
       <ImageBackground
@@ -80,7 +125,7 @@ const Meditate = (props: Props) => {
           <View className="mb-5">
             <CustomButton
               title="Start Meditation"
-              onPress={handleStartMeditation}
+              onPress={handleToggleMeditationSessiosStatus}
             />
           </View>
         </AppGradient>
