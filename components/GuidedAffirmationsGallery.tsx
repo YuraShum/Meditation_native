@@ -15,7 +15,7 @@ const GuidedAffirmationsGallery = ({ title, previews }: Props) => {
         {/* Заголовок */}
         <Text className="text-white font-bold text-xl">{title}</Text>
       </View>
-      <View className="space-y-2">
+      <View>
         <FlatList
           data={previews}
           horizontal={true}
@@ -29,7 +29,7 @@ const GuidedAffirmationsGallery = ({ title, previews }: Props) => {
                   <Image
                     source={item.image}
                     resizeMode="cover"
-                    style={{ width: 128, height: 144 }}
+                    className="w-full h-full"
                   />
                 </View>
               </Pressable>
